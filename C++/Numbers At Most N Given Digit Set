@@ -1,0 +1,53 @@
+class Solution {
+// https://leetcode.com/problems/numbers-at-most-n-given-digit-set/
+int dp[10][2][2];
+int digitdp(int ind, int tight, int prev, vector<int> &digits, string num){
+    if(ind==num.size()) {
+        if(prev==0) return 0; 
+        return 1;
+    }
+    if(dp[ind][tight][prev]!=-1) return dp[ind][tight][prev];
+    int low=0;
+    int high=digits.size();
+    int cnt=0;
+    if(prev==0) cnt=digitdp(ind+1,0,0,digits,num);
+    // if(tight==0){
+    //     for(int i=0;i<digits.size();i++){
+    //         cnt+=digitdp(ind+1,0,1,digits,num);
+    //     }
+    // }
+    int flag=0;
+    if(tight==1){
+        if(digits[0]>num[ind]) return dp[ind][tight][prev]=0;
+        int temp=num[ind]-'0';
+        for(int i=0;i<digits.size();i++){
+            if(digits[i]==temp){
+                high=i;
+                break;
+            }
+            else if(digits[i]>temp){
+                flag=1;
+                high=i;
+                break;
+            }
+        }
+    }
+    for(int i=0;i<=high;i++){
+        if(i==digits.size()){
+            break;
+        }
+        if(high==i && flag==1) break;
+        else cnt+=digitdp(ind+1,tight && (high==i),1,digits,num);
+    }
+    return dp[ind][tight][prev]=cnt;
+}
+public:
+    int atMostNGivenDigitSet(vector<string>& digits, int n) {
+        memset(dp,-1,sizeof(dp));
+        vector<int>digi;
+        for(int i=0;i<digits.size();i++) digi.push_back(digits[i][0]-'0');
+        string num=to_string(n);
+        // cout<<num<<endl;
+        return digitdp(0,1,0,digi,num);
+    }
+};
